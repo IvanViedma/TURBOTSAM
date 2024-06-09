@@ -1,9 +1,9 @@
 from qtpy.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QCheckBox, QComboBox, QLabel, QProgressBar, QTextEdit, QDoubleSpinBox, QSpinBox, QGroupBox
 from PyQt5.QtCore import QTimer
 from typing import Union, List, Tuple
-from Utils import Utils
-from TurbotSAM import TurbotSAM
-from ProcesarMascaras import ProcesarMascaras
+from scripts.Utils import Utils
+from scripts.TurbotSAM import TurbotSAM
+from scripts.ProcesarMascaras import ProcesarMascaras
 from skimage.color import label2rgb
 import napari
 import torch
@@ -61,9 +61,9 @@ class NapariSAM:
             
             # Comprobamos si CUDA esta habilitado para poder usar la GPU
             if torch.cuda.is_available():
-                self.log.append("<span style='color: yellow;'>[WARNING]</span> CUDA no está habilitado y por lo tanto no se usará la memoria GPU para el procesamiento. Se utilizará la CPU lo que puede ocasionar tiempos largos de procesamiento")  
+                self.log.append("<span style='color: green;'>[INFO]</span> CUDA habilitado. Se usará la memoria GPU para el procesamiento")
             else:
-                self.log.append("<span style='color: green;'>[INFO]</span> CUDA habilitado. Se usará la memoria GPU para el procesamiento")  
+                self.log.append("<span style='color: yellow;'>[WARNING]</span> CUDA no está habilitado y por lo tanto no se usará la memoria GPU para el procesamiento. Se utilizará la CPU lo que puede ocasionar tiempos largos de procesamiento")
         except Exception as e:
             self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error durante el proceso de inicializacion: {str(e)}")
             
