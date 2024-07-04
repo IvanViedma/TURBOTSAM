@@ -1,5 +1,5 @@
-from qtpy.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QCheckBox, QComboBox, QLabel, QProgressBar, QTextEdit, QDoubleSpinBox, QSpinBox, QGroupBox
-from PyQt5.QtCore import QTimer
+from qtpy.QtWidgets import QScrollArea, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QCheckBox, QComboBox, QLabel, QProgressBar, QTextEdit, QDoubleSpinBox, QSpinBox, QGroupBox
+from PyQt5.QtCore import  QTimer
 from typing import Union, List, Tuple
 from scripts.Utils import Utils
 from scripts.TurbotSAM import TurbotSAM
@@ -28,7 +28,7 @@ class NapariSAM:
             self.widget = QWidget()
             self.layout = QVBoxLayout()
             self.widget.setLayout(self.layout)
-            
+
             # Inicializar campos
             self.__inicializarCarga()
             self.__inicializarCuadrantes()
@@ -38,8 +38,8 @@ class NapariSAM:
             self.__inicializarCuadro()
             self.__inicializarExportaciones()
             self.__incicializarVariables()
+
             
-        
             # Agregar campos
             self.layout.addWidget(self.cargarLabel)
             self.layout.addWidget(self.cargarGroupbox)
@@ -56,8 +56,13 @@ class NapariSAM:
             self.layout.addWidget(self.exportacionesLabel)
             self.layout.addWidget(self.exportacionesGroupbox)
             
+            #Agregamos una barra para hacer skroll
+            self.scrollArea = QScrollArea()
+            self.scrollArea.setWidgetResizable(True)
+            self.scrollArea.setWidget(self.widget)
+            
             # Mostrar widget
-            self.viewer.window.add_dock_widget(self.widget, name="TURBOT SAM")
+            self.viewer.window.add_dock_widget(self.scrollArea, name="TURBOT SAM")
             
             # Comprobamos si CUDA esta habilitado para poder usar la GPU
             if torch.cuda.is_available():
@@ -66,6 +71,10 @@ class NapariSAM:
                 self.log.append("<span style='color: yellow;'>[WARNING]</span> CUDA no está habilitado y por lo tanto no se usará la memoria GPU para el procesamiento. Se utilizará la CPU lo que puede ocasionar tiempos largos de procesamiento")
         except Exception as e:
             self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error durante el proceso de inicializacion: {str(e)}")
+            
+    def on_scroll(self):
+        value = self.scrollbar.value()
+        self.label.setText(f'Posición: {value}')
             
     # Funciones de inicializacion de Napari
       
@@ -1201,6 +1210,8 @@ class NapariSAM:
                     samImg = ProcesarMascaras.mostrarLabels(mascaras)
                     self.mascarasGeneradas = samImg
                     self.mascarasGeneradasAux = samImg
+                except MemoryError as e:
+                        self.log.append(f"<span style='color: yellow;'>[WARNING]</span> Debido a la cantidad de máscaras procesadas no se pudo asignar memoria suficiente para generar la imagen de segmentación de máscaras. Se generarán sólo los centros de máscaras: {str(e)}")
                 except Exception as e:
                     self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error al generar la imagen de etiquetas para las máscaras generadas por SAM: {str(e)}")
                 
@@ -1246,7 +1257,7 @@ class NapariSAM:
                         self.mascarasProcesadas = mascarasImg
                         self.mascarasProcesadasAux = mascarasImg
                     except MemoryError as e:
-                        self.log.append(f"<span style='color: yellow;'>[WARNING]</span> Debido a la cantidad de máscaras no se pudo asignar memoria suficiente para generar la imagen de segmentación de máscaras. Se generarán sólo los centros de máscaras: {str(e)}")
+                        self.log.append(f"<span style='color: yellow;'>[WARNING]</span> Debido a la cantidad de máscaras procesadas no se pudo asignar memoria suficiente para generar la imagen de segmentación de máscaras. Se generarán sólo los centros de máscaras: {str(e)}")
                         
                     except Exception as e:
                         self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error al generar la imagen de etiquetas para las máscaras procesadas: {str(e)}")
