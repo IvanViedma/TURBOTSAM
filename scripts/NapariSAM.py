@@ -139,7 +139,8 @@ class NapariSAM:
             self.cuadrantesCombo.addItem("4")
             self.cuadrantesCombo.addItem("9")
             self.cuadrantesCombo.addItem("16")
-            self.cuadrantesCombo.addItem("32")
+            self.cuadrantesCombo.addItem("25")
+            self.cuadrantesCombo.addItem("36")
             self.cuadrantesLayout.addWidget(self.cuadrantesCombo)
             self.cuadrantesCombo.currentIndexChanged.connect(self.__actualizarCuadrantes)
             
@@ -202,7 +203,7 @@ class NapariSAM:
                 ("pred_iou_thresh", 0.88),
                 ("stability_score_thresh", 0.95),
                 ("stability_score_offset", 1),
-                ("box_nms_thresh", 0.2),
+                ("box_nms_thresh", 0.4),
                 ("crop_n_layers", 0),
                 ("crop_nms_thresh", 0.3),
                 ("crop_overlap_ratio", 0.5),
@@ -989,7 +990,7 @@ class NapariSAM:
         Exporta un histograma de las areas de las mascaras procesadas junto con sus stability scores.
 
         Esta funcion exporta un histograma de las areas de las mascaras procesadas junto con sus stability scores.
-        Abre un cuadro de dialogo para seleccionar la ubicacion y el nombre del archiv a almacenar.
+        Abre un cuadro de dialogo para seleccionar la ubicacion y el nombre del archivo a almacenar.
 
         Args:
             None
@@ -1002,13 +1003,13 @@ class NapariSAM:
                 
                 listaMascaras = self.listaMascarasProcesadas
 
-                # Extraer el área y stability_score de cada objeto
+                # Extraer el área y predicted_iou de cada objeto
                 listaAreas = [mascara['area'] for mascara in listaMascaras]
-                listaStabilityScores = [mascara['stability_score'] for mascara in listaMascaras]
+                listaPredictedIou = [mascara['predicted_iou'] for mascara in listaMascaras]
 
-                # Normalizar los stability_scores para que estén en el rango [0, 1]
-                maxStabilityScore = max(listaStabilityScores)
-                listaStabilityScoresNorm = [score / maxStabilityScore for score in listaStabilityScores]
+                # Normalizar los predicted_iou para que estén en el rango [0, 1]
+                maxPredictedIou= max(listaPredictedIou)
+                listaPredictedIouNorm = [score / maxPredictedIou for score in listaPredictedIou]
 
                 # Ordenar las áreas de manera descendente
                 listaAreas = sorted(listaAreas, reverse=True)
@@ -1050,8 +1051,8 @@ class NapariSAM:
                         
                     # Agregar el segundo eje Y
                     ax2 = ax1.twinx()  
-                    ax2.set_ylabel('Stability Score [Normalizado]')
-                    ax2.plot(x, listaStabilityScoresNorm, color='green', linestyle = linea, marker='o', markersize= tamanoPunto, linewidth=0.5)
+                    ax2.set_ylabel('Predicted IoU [Normalizado]')
+                    ax2.plot(x, listaPredictedIouNorm, color='green', linestyle = linea, marker='o', markersize= tamanoPunto, linewidth=0.5)
 
                     fig.tight_layout()
                     plt.savefig(opciones)
@@ -1195,7 +1196,7 @@ class NapariSAM:
                         mascaras = ProcesarMascaras.superponerMascaras(mascarasPorCuadrante, self.dimensionesImagenCargada)
                         self.listaMascaras = mascaras
                     except Exception as e:
-                        self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error superponer las mascaras de los cuadrantes en una misma imagen: {str(e)}")
+                        self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error al superponer las mascaras de los cuadrantes en una misma imagen: {str(e)}")
                 try:
                     samImg = ProcesarMascaras.mostrarLabels(mascaras)
                     self.mascarasGeneradas = samImg
@@ -1244,6 +1245,9 @@ class NapariSAM:
                         mascarasImg = ProcesarMascaras.mostrarLabels(mascarasProcesadas)
                         self.mascarasProcesadas = mascarasImg
                         self.mascarasProcesadasAux = mascarasImg
+                    except MemoryError as e:
+                        self.log.append(f"<span style='color: yellow;'>[WARNING]</span> Debido a la cantidad de máscaras no se pudo asignar memoria suficiente para generar la imagen de segmentación de máscaras. Se generarán sólo los centros de máscaras: {str(e)}")
+                        
                     except Exception as e:
                         self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error al generar la imagen de etiquetas para las máscaras procesadas: {str(e)}")
                     

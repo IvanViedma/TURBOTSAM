@@ -25,7 +25,11 @@ class TurbotSAM:
     output_mode (str): La forma en que se devuelven las máscaras. Puede ser 'binary_mask', 'uncompressed_rle' o 'coco_rle'. 'coco_rle' requiere pycocotools. Para resoluciones grandes, 'binary_mask' puede consumir grandes cantidades de memoria.
     """
         
-    def __init__(self,points_per_side,points_per_batch,pred_iou_thresh,stability_score_thresh,stability_score_offset,box_nms_thresh,crop_n_layers,crop_nms_thresh,crop_overlap_ratio,crop_n_points_downscale_factor,min_mask_region_area):
+    def __init__(self,points_per_side,points_per_batch,pred_iou_thresh,
+                 stability_score_thresh,stability_score_offset,
+                 box_nms_thresh,crop_n_layers,crop_nms_thresh,
+                 crop_overlap_ratio,crop_n_points_downscale_factor,
+                 min_mask_region_area):
         
         try:
             self.checkpoint = "models/mobile_sam.pt"

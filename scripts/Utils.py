@@ -15,7 +15,7 @@ class Utils:
 
         Args:
             dimensiones (tuple): Dimensiones de la imagen (altura, anchura).
-            numCuadrantes (int): NUmero total de cuadrantes deseados.
+            numCuadrantes (int): Numero total de cuadrantes deseados.
             sectores (bool): Indica si se deben asignar fondo a los cuadrantes.
 
         Returns:
