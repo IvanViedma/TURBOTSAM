@@ -72,10 +72,6 @@ class NapariSAM:
         except Exception as e:
             self.log.append(f"<span style='color: red;'>[ERROR]</span> Ha ocurrido un error durante el proceso de inicializacion: {str(e)}")
             
-    def on_scroll(self):
-        value = self.scrollbar.value()
-        self.label.setText(f'Posición: {value}')
-            
     # Funciones de inicializacion de Napari
       
     def __inicializarCarga(self) -> None:
